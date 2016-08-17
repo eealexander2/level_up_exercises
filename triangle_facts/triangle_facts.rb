@@ -5,9 +5,6 @@ class Triangle
     @side1 = side1
     @side2 = side2
     @side3 = side3
-    @angle_list = { angleA: [2**side2, 2**side3, 2**side1, side2, side3],
-                    angleB: [2**side1, 2**side3, 2**side2, side1, side3],
-                    angleC: [2**side1, 2**side2, 2**side3, side1, side2] }
   end
 
   def equilateral?
@@ -19,30 +16,31 @@ class Triangle
   end
 
   def scalene?
-    equilateral? || isosceles? ? false : true
+    !equilateral? || !isosceles?
   end
 
-  def facts
-    triangle_facts = { equilateral? => "This triangle is equilateral",
-                       isosceles? => "This triangle is isosceles!",
-                       scalene? => 'This triangle is scalene and
-                       mathematically boring.' }
-    triangle_facts.each { |key, value| puts value if key }
+  def right_angle?
+    angles.include? 90
   end
 
-  def state_facts
-    p "The angles of this triangle are #{angles(@angle_list).join(',')}"
-    if angles(@angle_list).include? 90
-      p 'This triangle is also a right triangle!'
-    end
+  def triangle_facts
+    puts "This triangle is equilateral" if equilateral?
+    puts "This triangle is isosceles!" if isosceles?
+    puts "This triangle is scalene and mathematically boring." if scalene?
+    puts "This triangle is also a right triangle!" if right_angle?
+    puts "The angles of this triangle are #{angles.join(',')}."
   end
 
-  def angles(angle_list)
-    angles = []
-    angle_list.each do |_k, v|
-      angles << degrees(Math.acos((v[0] + v[1] - v[2]) / (2.0 * v[3] * v[4])))
-    end
-    [angles[0], angles[1], angles[2]]
+  def angles
+    [calculate_angles(side2, side3, side1),
+     calculate_angles(side1, side3, side2),
+     calculate_angles(side1, side2, side3)]
+  end
+
+  def calculate_angles(first_side, second_side, opposite_side)
+    numerator = (first_side**2 + second_side**2 - opposite_side**2)
+    denominator = (2.0 * first_side * second_side)
+    degrees(Math.acos(numerator / denominator))
   end
 
   def degrees(rads)
@@ -50,6 +48,5 @@ class Triangle
   end
 end
 
-triangle = Triangle.new(5, 5, 5)
-triangle.facts
-triangle.state_facts
+triangle = Triangle.new(9, 13, 15)
+triangle.triangle_facts
